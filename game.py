@@ -25,8 +25,15 @@ class QLearningAgent(object):
     def __init__(self, g):
         self.weights = np.zeros(g.vectdimension)
 
-    def get_action(self, s):
+    def act(self, s, r, a, s2):
         pass
+
+    def get_action(self, s):
+        highest = 0
+        best_action = ""
+        for action in ACTIONS:
+            best_action = action if self.q(s, action) > highest else best_action
+        return best_action
 
     def q(self, s, a):
         f = np.asarray(s.step_nomutate(a)[0])
