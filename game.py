@@ -23,7 +23,8 @@ class UserAgent(object):
 class QLearningAgent(object):
 
     def __init__(self):
-        self.weights = np.zeros(2)
+        self.weights = np.array([random.random(), random.random()])
+        #self.weights = np.array([-2, 1])
         self.learning_rate = 0.5
 
     def act(self, s, a, r, s2):
@@ -116,9 +117,17 @@ if __name__ == "__main__":
     observation = g.observation()
     score = 0
     for i in range(200):
+<<<<<<< HEAD
         print "Score:", score
         action = agent.get_action(observation, e=0.0)
         observation, reward, _ = g.step(action)
+=======
+        action = agent.get_action(previous_state)
+        current_state, reward, done = g.step(action)
+        agent.act(previous_state, action, reward, current_state)
+        previous_state = current_state
+        previous_action = action
+>>>>>>> b4d8a5b36e57e810cf577794b4d87bb87b9327d7
         score += reward
         g.render()
         clock.tick(5)
