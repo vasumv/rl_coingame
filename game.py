@@ -117,17 +117,9 @@ if __name__ == "__main__":
     observation = g.observation()
     score = 0
     for i in range(200):
-<<<<<<< HEAD
         print "Score:", score
         action = agent.get_action(observation, e=0.0)
         observation, reward, _ = g.step(action)
-=======
-        action = agent.get_action(previous_state)
-        current_state, reward, done = g.step(action)
-        agent.act(previous_state, action, reward, current_state)
-        previous_state = current_state
-        previous_action = action
->>>>>>> b4d8a5b36e57e810cf577794b4d87bb87b9327d7
         score += reward
         g.render()
         clock.tick(5)
