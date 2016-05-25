@@ -1,7 +1,6 @@
 import random
 import pygame
 import numpy as np
-import scipy
 from simulator import GameBoard
 
 ACTIONS = ["up", "down", "left", "right", None]
@@ -23,8 +22,8 @@ class UserAgent(object):
 
 class QLearningAgent(object):
 
-    def __init__(self, g):
-        self.weights = np.zeros(g.vectdimension)
+    def __init__(self):
+        self.weights = np.zeros(2)
         self.learning_rate = 0.5
 
     def act(self, s, r, a, s2):
@@ -66,19 +65,19 @@ class QLearningAgent(object):
             if walls[center + 1, center - 1] == 1:
                 bot_new = np.array([center + 1, center - 1])
         enemies = np.nonzero(enemies)
-        closest_enemy = center + 2
-        closest_coin = center + 2
+        closest_enemy = center + 3
+        closest_coin = center + 3
         coins = np.nonzero(coins)
         if enemies[0].size > 0:
-            enemy_loc = [np.array([enemies[0][i], enemies[1][i]]) for i in range(enemies[0])]
+            enemy_loc = [np.array([enemies[0][i], enemies[1][i]]) for i in range(len(enemies[0]))]
             for enemy in enemy_loc:
-                dist = scipy.spatial.distance.cityblock(bot_new, enemy)
+                dist = abs(bot_new - enemy).sum()
                 if dist < closest_enemy:
                     closest_enemy = dist
         if coins[0].size > 0:
-            coin_loc = [np.array([coins[0][i], coins[1][i]]) for i in range(coins[0])]
+            coin_loc = [np.array([coins[0][i], coins[1][i]]) for i in range(len(coins[0]))]
             for coin in coin_loc:
-                dist = scipy.spatial.distance.cityblock(bot_new, coin)
+                dist = abs(bot_new - coin).sum()
                 if dist < closest_coin:
                     closest_coin = dist
         return np.array([closest_enemy, closest_coin])
@@ -89,7 +88,7 @@ class QLearningAgent(object):
 if __name__ == "__main__":
 
     fps = 5
-    agent = UserAgent()
+    agent = QLearningAgent()
 
     score = 0
     clock = pygame.time.Clock()
@@ -98,6 +97,8 @@ if __name__ == "__main__":
 
     observation = g.observation()
     reward, done = None, None
+    print "F: ", agent.f(observation, "left")
+    '''
     while True:
         action = agent.get_action(observation)
         observation, reward, done = g.step(action)
@@ -105,3 +106,4 @@ if __name__ == "__main__":
         print score
         g.render()
         clock.tick(fps)
+    '''
