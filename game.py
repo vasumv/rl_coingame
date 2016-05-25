@@ -23,7 +23,7 @@ class UserAgent(object):
 class QLearningAgent(object):
 
     def __init__(self):
-        self.weights = np.zeros(2)
+        self.weights = np.array([random.random(), random.random()])
         #self.weights = np.array([-2, 1])
         self.learning_rate = 0.5
 
@@ -35,7 +35,7 @@ class QLearningAgent(object):
         f = self.f(s, a)
         update_weights = np.zeros(self.weights.size)
         for i in range(update_weights.size):
-            np.append(update_weights, self.weights[i] + self.learning_rate * difference * f[i])
+            update_weights[i] = self.weights[i] + self.learning_rate * difference * f[i]
         self.weights = update_weights
 
     def get_action(self, s, e=0.5):
