@@ -24,7 +24,6 @@ class QLearningAgent(object):
 
     def __init__(self):
         self.weights = np.zeros(2)
-        #self.weights = np.array([-2, 1])
         self.learning_rate = 0.5
 
     def act(self, s, a, r, s2):
@@ -35,7 +34,7 @@ class QLearningAgent(object):
         f = self.f(s, a)
         update_weights = np.zeros(self.weights.size)
         for i in range(update_weights.size):
-            np.append(update_weights, self.weights[i] + self.learning_rate * difference * f[i])
+            update_weights [i]  = self.weights[i] + self.learning_rate * difference * f[i]
         self.weights = update_weights
 
     def get_action(self, s, e=0.5):
@@ -86,7 +85,7 @@ class QLearningAgent(object):
                 dist = abs(bot_new - coin).sum()
                 if dist < closest_coin:
                     closest_coin = dist
-        return np.array([1 / (0.1 + closest_enemy), 1 / (closest_coin + 0.1)])
+        return np.array([np.exp(-closest_enemy), np.exp(-closest_coin)])
 
 
 
@@ -98,15 +97,28 @@ if __name__ == "__main__":
 
     score = 0
     clock = pygame.time.Clock()
-    g = GameBoard(10, 5, 10, 2)
+    for _ in xrange(500):
+        print "Starting episode %u" % (_ + 1)
+        g = GameBoard(10, 5, 10, 2)
 
-    observation = g.observation()
-    previous_state, previous_action, reward, current_state = observation, None, 0, None
-    for i in range(200):
-        action = agent.get_action(previous_state)
-        current_state, reward, done = g.step(action)
-        agent.act(previous_state, action, reward, current_state)
-        score += reward
-        i += 1
+        observation = g.observation()
+        previous_state, previous_action, reward, current_state = observation, None, 0, None
+        for i in range(200):
+            action = agent.get_action(previous_state)
+            current_state, reward, done = g.step(action)
+            agent.act(previous_state, action, reward, current_state)
+            previous_state = current_state
+            score += reward
+            i += 1
     print agent.weights
 
+    g = GameBoard(10, 5, 10, 2)
+    observation = g.observation()
+    score = 0
+    for i in range(200):
+        print "Score:", score
+        action = agent.get_action(observation, e=0.0)
+        observation, reward, _ = g.step(action)
+        score += reward
+        g.render()
+        clock.tick(5)

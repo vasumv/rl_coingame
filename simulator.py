@@ -118,7 +118,7 @@ class GameBoard():
             reward = -100
             self.done = True
         else:
-            reward = 0
+            reward = -1
         new_enemies = []
         for enemy in self.enemies:
             new_enemies.append(self.move_enemy(enemy))
