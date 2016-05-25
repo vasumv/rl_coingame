@@ -1,6 +1,7 @@
 import random
 import pygame
 import numpy as np
+import scipy
 from simulator import GameBoard
 
 ACTIONS = ["up", "down", "left", "right", None]
@@ -44,9 +45,44 @@ class QLearningAgent(object):
             best_action = action if self.q(s, action) > highest else best_action
         return best_action
 
-    def q(self, s, a):
-        f = np.asarray(s.step_nomutate(a)[0])
-        return np.dot(f, self.weights)
+    def q(self, s, action):
+        features = self.f(s, action)
+        return np.dot(features, self.weights)
+
+    def f(self, s, action):
+        walls, enemies, coins = s
+        bot_new = np.array([walls.size / 2, walls.size / 2])
+        if action == "left":
+            if walls[walls.size / 2, walls.size / 2 - 1] == 1:
+                bot_new = np.array([walls.size / 2, walls.size / 2 - 1])
+        elif action == "right":
+            if walls[walls.size / 2, walls.size / 2 + 1] == 1:
+                bot_new = np.array([walls.size / 2, walls.size / 2 + 1])
+        elif action == "up":
+            if walls[walls.size / 2 - 1, walls.size / 2] == 1:
+                bot_new = np.array([walls.size / 2 - 1, walls.size / 2])
+        elif action == "down":
+            if walls[walls.size / 2 + 1, walls.size / 2 - 1] == 1:
+                bot_new = np.array([walls.size / 2 + 1, walls.size / 2 - 1])
+        enemies = np.nonzero(enemies)
+        closest_enemy = walls.size / 2 + 2
+        closest_coin = walls.size / 2 + 2
+        coins = np.nonzero(coins)
+        if enemies[0].size > 0:
+            enemy_loc = [np.array([enemies[0][i], enemies[1][i]]) for i in range(enemies[0])]
+            for enemy in enemy_loc:
+                dist = scipy.spatial.distance.cityblock(bot_new, enemy)
+                if dist < closest_enemy:
+                    closest_enemy = dist
+        if coins[0].size > 0:
+            coin_loc = [np.array([coins[0][i], coins[1][i]]) for i in range(coins[0])]
+            for coin in coin_loc:
+                dist = scipy.spatial.distance.cityblock(bot_new, coin)
+                if dist < closest_coin:
+                    closest_coin = dist
+        return np.array([closest_enemy, closest_coin])
+
+
 
 
 if __name__ == "__main__":
