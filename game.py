@@ -106,6 +106,8 @@ if __name__ == "__main__":
         action = agent.get_action(previous_state)
         current_state, reward, done = g.step(action)
         agent.act(previous_state, action, reward, current_state)
+        previous_state = current_state
+        previous_action = action
         score += reward
         i += 1
     print agent.weights
