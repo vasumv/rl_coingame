@@ -23,29 +23,32 @@ class UserAgent(object):
 class QLearningAgent(object):
 
     def __init__(self):
-        #self.weights = np.zeros(2)
-        self.weights = np.array([-2, 1])
+        self.weights = np.zeros(2)
+        #self.weights = np.array([-2, 1])
         self.learning_rate = 0.5
 
-    def act(self, s, r, a, s2):
-        highest = 0
+    def act(self, s, a, r, s2):
+        highest = float("-inf")
         for action in ACTIONS:
             highest = self.q(s2, action) if self.q(s2, action) > highest else highest
         difference = r + highest - self.q(s, a)
-        f = np.asarray(s.step_nomutate(a)[0])
+        f = self.f(s, a)
         update_weights = np.zeros(self.weights.size)
-        for i in range(update_weights):
+        for i in range(update_weights.size):
             np.append(update_weights, self.weights[i] + self.learning_rate * difference * f[i])
         self.weights = update_weights
 
-    def get_action(self, s):
+    def get_action(self, s, e=0.5):
         highest = float("-inf")
         best_action = ""
         for action in ACTIONS:
             if self.q(s, action) > highest:
                 highest = self.q(s, action)
                 best_action = action
-        return best_action
+        if random.random() > e:
+            return best_action
+        else:
+            return random.choice(ACTIONS)
 
     def q(self, s, action):
         features = self.f(s, action)
@@ -96,17 +99,14 @@ if __name__ == "__main__":
     score = 0
     clock = pygame.time.Clock()
     g = GameBoard(10, 5, 10, 2)
-    g.render()
 
     observation = g.observation()
-    reward, done = None, None
-    print "Action: ", agent.get_action(observation)
-    '''
-    while True:
-        action = agent.get_action(observation)
-        observation, reward, done = g.step(action)
+    previous_state, previous_action, reward, current_state = observation, None, 0, None
+    for i in range(200):
+        action = agent.get_action(previous_state)
+        current_state, reward, done = g.step(action)
+        agent.act(previous_state, action, reward, current_state)
         score += reward
-        print score
-        g.render()
-        clock.tick(fps)
-    '''
+        i += 1
+    print agent.weights
+
