@@ -23,7 +23,8 @@ class UserAgent(object):
 class QLearningAgent(object):
 
     def __init__(self):
-        self.weights = np.zeros(2)
+        #self.weights = np.zeros(2)
+        self.weights = np.array([-2, 1])
         self.learning_rate = 0.5
 
     def act(self, s, r, a, s2):
@@ -38,10 +39,12 @@ class QLearningAgent(object):
         self.weights = update_weights
 
     def get_action(self, s):
-        highest = 0
+        highest = float("-inf")
         best_action = ""
         for action in ACTIONS:
-            best_action = action if self.q(s, action) > highest else best_action
+            if self.q(s, action) > highest:
+                highest = self.q(s, action)
+                best_action = action
         return best_action
 
     def q(self, s, action):
@@ -62,7 +65,7 @@ class QLearningAgent(object):
             if walls[center - 1, center] == 1:
                 bot_new = np.array([center - 1, center])
         elif action == "down":
-            if walls[center + 1, center - 1] == 1:
+            if walls[center + 1, center] == 1:
                 bot_new = np.array([center + 1, center - 1])
         enemies = np.nonzero(enemies)
         closest_enemy = center + 3
@@ -80,7 +83,7 @@ class QLearningAgent(object):
                 dist = abs(bot_new - coin).sum()
                 if dist < closest_coin:
                     closest_coin = dist
-        return np.array([closest_enemy, closest_coin])
+        return np.array([1 / (0.1 + closest_enemy), 1 / (closest_coin + 0.1)])
 
 
 
@@ -92,12 +95,12 @@ if __name__ == "__main__":
 
     score = 0
     clock = pygame.time.Clock()
-    g = GameBoard(10, 3, 10, 2)
+    g = GameBoard(10, 5, 10, 2)
     g.render()
 
     observation = g.observation()
     reward, done = None, None
-    print "F: ", agent.f(observation, "left")
+    print "Action: ", agent.get_action(observation)
     '''
     while True:
         action = agent.get_action(observation)
