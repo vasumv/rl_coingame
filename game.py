@@ -3,7 +3,7 @@ import pygame
 import numpy as np
 from simulator import GameBoard
 
-ACTIONS = ["up", "down", "left", "right"]
+ACTIONS = ["up", "down", "left", "right", None]
 
 class UserAgent(object):
 
@@ -24,9 +24,18 @@ class QLearningAgent(object):
 
     def __init__(self, g):
         self.weights = np.zeros(g.vectdimension)
+        self.learning_rate = 0.5
 
     def act(self, s, r, a, s2):
-        pass
+        highest = 0
+        for action in ACTIONS:
+            highest = self.q(s2, action) if self.q(s2, action) > highest else highest
+        difference = r + highest - self.q(s, a)
+        f = np.asarray(s.step_nomutate(a)[0])
+        update_weights = np.zeros(self.weights.size)
+        for i in range(update_weights):
+            np.append(update_weights, self.weights[i] + self.learning_rate * difference * f[i])
+        self.weights = update_weights
 
     def get_action(self, s):
         highest = 0
