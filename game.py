@@ -51,22 +51,23 @@ class QLearningAgent(object):
 
     def f(self, s, action):
         walls, enemies, coins = s
-        bot_new = np.array([walls.size / 2, walls.size / 2])
+        center = walls.shape[0] / 2
+        bot_new = np.array([center, center])
         if action == "left":
-            if walls[walls.size / 2, walls.size / 2 - 1] == 1:
-                bot_new = np.array([walls.size / 2, walls.size / 2 - 1])
+            if walls[center, center - 1] == 1:
+                bot_new = np.array([center, center - 1])
         elif action == "right":
-            if walls[walls.size / 2, walls.size / 2 + 1] == 1:
-                bot_new = np.array([walls.size / 2, walls.size / 2 + 1])
+            if walls[center, center + 1] == 1:
+                bot_new = np.array([center, center + 1])
         elif action == "up":
-            if walls[walls.size / 2 - 1, walls.size / 2] == 1:
-                bot_new = np.array([walls.size / 2 - 1, walls.size / 2])
+            if walls[center - 1, center] == 1:
+                bot_new = np.array([center - 1, center])
         elif action == "down":
-            if walls[walls.size / 2 + 1, walls.size / 2 - 1] == 1:
-                bot_new = np.array([walls.size / 2 + 1, walls.size / 2 - 1])
+            if walls[center + 1, center - 1] == 1:
+                bot_new = np.array([center + 1, center - 1])
         enemies = np.nonzero(enemies)
-        closest_enemy = walls.size / 2 + 2
-        closest_coin = walls.size / 2 + 2
+        closest_enemy = center + 2
+        closest_coin = center + 2
         coins = np.nonzero(coins)
         if enemies[0].size > 0:
             enemy_loc = [np.array([enemies[0][i], enemies[1][i]]) for i in range(enemies[0])]
