@@ -1,5 +1,6 @@
 import random
 import pygame
+import numpy as np
 
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -41,26 +42,28 @@ class GameBoard():
         self.screen = pygame.display.set_mode(WINDOW_SIZE)
 
     def observation(self):
-        vect = []
-        for y in range(self.bot[1] - self.grid_radius, self.bot[1] + self.grid_radius):
-            for x in range(self.bot[0] - self.grid_radius, self.bot[0] + self.grid_radius):
-                if (x, y) in self.enemies:
-                    vect.append(0)
-                else:
-                    vect.append(1)
-        for y in range(self.bot[1] - self.grid_radius, self.bot[1] + self.grid_radius):
-            for x in range(self.bot[0] - self.grid_radius, self.bot[0] + self.grid_radius):
-                if (x, y) in self.coins:
-                    vect.append(0)
-                else:
-                    vect.append(1)
+        walls = np.zeros((self.grid_radius * 2 + 1, self.grid_radius * 2 + 1))
+        enemies = np.zeros((self.grid_radius * 2 + 1, self.grid_radius * 2 + 1))
+        coins = np.zeros((self.grid_radius * 2 + 1, self.grid_radius * 2 + 1))
         for y in range(self.bot[1] - self.grid_radius, self.bot[1] + self.grid_radius):
             for x in range(self.bot[0] - self.grid_radius, self.bot[0] + self.grid_radius):
                 if x < 0 or x > self.size - 1 or y < 0 or y > self.size - 1:
-                    vect.append(1)
+                    walls[y - self.bot[1] + self.grid_radius / 2, x - self.bot[0] + self.grid_radius / 2] = 0
                 else:
-                    vect.append(0)
-        return vect
+                    walls[y - self.bot[1] + self.grid_radius, x - self.bot[0] + self.grid_radius] = 1
+        for y in range(self.bot[1] - self.grid_radius, self.bot[1] + self.grid_radius):
+            for x in range(self.bot[0] - self.grid_radius, self.bot[0] + self.grid_radius):
+                if (x, y) in self.enemies:
+                    enemies[y - self.bot[1] + self.grid_radius / 2, x - self.bot[0] + self.grid_radius / 2] = 1
+                else:
+                    enemies[y - self.bot[1] + self.grid_radius / 2, x - self.bot[0] + self.grid_radius / 2] = 0
+        for y in range(self.bot[1] - self.grid_radius, self.bot[1] + self.grid_radius):
+            for x in range(self.bot[0] - self.grid_radius, self.bot[0] + self.grid_radius):
+                if (x, y) in self.coins:
+                    coins[y - self.bot[1] + self.grid_radius / 2, x - self.bot[0] + self.grid_radius / 2] = 1
+                else:
+                    coins[y - self.bot[1] + self.grid_radius / 2, x - self.bot[0] + self.grid_radius / 2] = 0
+        return walls, enemies, coins
 
     def observation_nomutate(self, bot, enemies, coins):
         vect = []
