@@ -1,13 +1,21 @@
 import random
 import pygame
 import numpy as np
+import pickle as pickle
 from simulator import GameBoard
+from argparse import ArgumentParser
+
+def parse_args():
+    argparser = ArgumentParser()
+    argparser.add_argument("--agent", default="qlearn")
+
+    return argparser.parse_args()
 
 ACTIONS = ["up", "down", "left", "right", None]
 
 class UserAgent(object):
 
-    def get_action(self, observation):
+    def get_action(self, observation, e=0):
         events = pygame.event.get()
         for event in events:
             if event.type == pygame.KEYDOWN:
@@ -23,7 +31,9 @@ class UserAgent(object):
 class QLearningAgent(object):
 
     def __init__(self):
-        self.weights = np.array([random.random(), random.random()])
+        weights = open("weights.pkl", "rb")
+        self.weights = pickle.load(weights)
+        #self.weights = np.array([0, 0])
         #self.weights = np.array([-2, 1])
         self.learning_rate = 0.5
 
@@ -92,13 +102,18 @@ class QLearningAgent(object):
 
 
 if __name__ == "__main__":
-
+    args = parse_args()
     fps = 5
-    agent = QLearningAgent()
-
+    if args.agent == "qlearn":
+        agent = QLearningAgent()
+        print "initial weights: ", agent.weights
+    else:
+        agent = UserAgent()
     score = 0
     clock = pygame.time.Clock()
+    '''
     for _ in xrange(500):
+        print "updated weights: ", agent.weights
         print "Starting episode %u" % (_ + 1)
         g = GameBoard(10, 5, 10, 2)
 
@@ -110,13 +125,17 @@ if __name__ == "__main__":
             agent.act(previous_state, action, reward, current_state)
             previous_state = current_state
             score += reward
+            g.render()
+            clock.tick(5)
             i += 1
-    print agent.weights
-
-    g = GameBoard(10, 5, 10, 2)
+    print "final weights: ", agent.weights
+    weights = open("weights.pkl", "wb")
+    pickle.dump(agent.weights, weights)
+    '''
+    g = GameBoard(15, 10, 14, 5)
     observation = g.observation()
     score = 0
-    for i in range(200):
+    while True:
         print "Score:", score
         action = agent.get_action(observation, e=0.0)
         observation, reward, _ = g.step(action)
